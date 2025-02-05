@@ -20,3 +20,12 @@ jobs:
       - name: Get version from tag
         id: get_version
         run: echo "::set-output name=version::$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}:v${{ steps.get_version.outputs.version }}
+          load: false
