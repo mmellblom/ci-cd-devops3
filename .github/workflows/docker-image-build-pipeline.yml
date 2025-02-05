@@ -19,13 +19,17 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        run: echo "::set-output name=version::$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')"
+        run: echo "::set-output name=tag_name::$(git describe --tags)"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository }}/my-nginx-image:${{ steps.get_version.outputs.tag_name }} . --no-cache
+
+      - name: Log into GHCR
+        uses: docker/login-action@v2
         with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}:v${{ steps.get_version.outputs.version }}
-          load: false
+            registry: ghcr.io
+            username: ${{ github.repository_owner}}
+            password: ${{ secrets.GITHUB_TOKEN}}
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository }}/nginx-ci-cd:${{ steps.get_version.outputs.tag_name}}
