@@ -1,0 +1,42 @@
+---
+name: Updating image for Kubernetes-deployment
+- hosts: localhost
+  become: true
+  gather_facts: no
+  vars:
+    deployment_name: "nginx-deployment"
+    namespace: "default"
+
+  tasks:
+    - name: Check if newer version of image exist
+      command: "docker pull ghcr.io/mmellblom/ci-cd-devops3/nginx-ci-cd:{{ image_tag }}"
+      register: pull_image
+      ignore_errors: yes
+      failed_when: pull_image.rc != 0
+      changed_when: false
+
+    - name: Break if no image is found
+      fail:
+        msg: "Image ghcr.io/mmellblom/ci-cd-devops3/nginx-ci-cd:{{ image_tag }} could not be found."
+      when: pull_image.rc != 0
+
+    - name: Update to new image
+      command: |
+        kubectl set image deployment/nginx-deployment nginx=ghcr.io/mmellblom/ci-cd-devops3/nginx-ci-cd:{{ image_tag }}
+      register: update_result
+      failed_when: update_result != 0
+
+    - name: Wait for deployment update
+      command: |
+        kubectl rollout status deployment/nginx-deployment
+      register: rollout_status
+      until: rollout_status == 0
+      retries: 5
+      delay: 10
+      failed when: rollout_status.rc =! 0
+
+    - name: Rollback if update fails
+      command: |
+        kubectl rollout undo deployment/nginx-deployment
+      when: rollout_status.rc != 0
+        msg: "Failed to update, rollback done."
