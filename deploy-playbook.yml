@@ -1,11 +1,8 @@
 ---
-- name: Updating image for Kubernetes-deployment
+- name: Updating image for Kubernetes deployment
   hosts: localhost
   become: true
   gather_facts: no
-  vars:
-    deployment_name: "nginx-deployment"
-    namespace: "default"
 
   tasks:
 
