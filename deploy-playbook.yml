@@ -8,6 +8,11 @@ name: Updating image for Kubernetes-deployment
     namespace: "default"
 
   tasks:
+
+    - name: Set image version
+      set_fact:
+        new_version: "{{ image_tag }}"
+        
     - name: Check if newer version of image exist
       command: "docker pull ghcr.io/mmellblom/ci-cd-devops3/nginx-ci-cd:{{ image_tag }}"
       register: pull_image
