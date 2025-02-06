@@ -1,6 +1,6 @@
 ---
-name: Updating image for Kubernetes-deployment
-- hosts: localhost
+- name: Updating image for Kubernetes-deployment
+  hosts: localhost
   become: true
   gather_facts: no
   vars:
@@ -44,4 +44,3 @@ name: Updating image for Kubernetes-deployment
       command: |
         kubectl rollout undo deployment/nginx-deployment
       when: rollout_status.rc != 0
-        msg: "Failed to update, rollback done."
