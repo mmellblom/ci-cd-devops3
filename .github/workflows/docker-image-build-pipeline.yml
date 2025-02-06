@@ -28,7 +28,7 @@ jobs:
             username: ${{ github.repository_owner}}
             password: ${{ secrets.GITHUB_TOKEN}}
 
-      - name: Convert repository owner to lower case
+      - name: Convert repository owner to lower case #Maybe not necessary. Changed my github name to lowercase letters
         id: set_repo_name
         run: echo "repo_name=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
