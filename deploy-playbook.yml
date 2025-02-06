@@ -11,7 +11,7 @@ name: Updating image for Kubernetes-deployment
 
     - name: Set image version
       set_fact:
-        new_version: "{{ image_tag }}"
+        image_tag: "{{ image_tag }}"
         
     - name: Check if newer version of image exist
       command: "docker pull ghcr.io/mmellblom/ci-cd-devops3/nginx-ci-cd:{{ image_tag }}"
@@ -38,7 +38,7 @@ name: Updating image for Kubernetes-deployment
       until: rollout_status == 0
       retries: 5
       delay: 10
-      failed when: rollout_status.rc =! 0
+      failed_when: rollout_status.rc =! 0
 
     - name: Rollback if update fails
       command: |
