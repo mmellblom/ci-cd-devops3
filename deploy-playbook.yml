@@ -1,11 +1,11 @@
 ---
 - name: Updating image for Kubernetes deployment
   hosts: localhost
+  connection: local
   become: true
   gather_facts: no
 
   tasks:
-
     - name: Set image version
       set_fact:
         image_tag: "{{ image_tag }}"
@@ -26,16 +26,16 @@
       command: |
         kubectl set image deployment/nginx-deployment nginx=ghcr.io/mmellblom/ci-cd-devops3/nginx-ci-cd:{{ image_tag }}
       register: update_result
-      failed_when: update_result != 0
+      failed_when: update_result.rc != 0
 
     - name: Wait for deployment update
       command: |
         kubectl rollout status deployment/nginx-deployment
       register: rollout_status
-      until: rollout_status == 0
+      until: "'successfully rolled out' in rollout_status.stdout"
       retries: 5
       delay: 10
-      failed_when: rollout_status.rc =! 0
+      failed_when: "'successfully rolled out' not in rollout_status.stdout and rollout_status.rc != 0"
 
     - name: Rollback if update fails
       command: |
